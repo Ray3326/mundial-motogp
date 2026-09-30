@@ -1,0 +1,903 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Mundial MotoGP</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: paddock timing screen. Kerb-stripe header, one centred column, tables that read like a timing tower. Team colours live only on number plates and chart lines; the kerb red is the single loud accent. */
+:root{
+  --bg:#eceef2; --surface:#ffffff; --surface-2:#f3f4f8; --ink:#14171f; --muted:#5a6172; --line:#d9dde6;
+  --accent:#d3241c; --accent-ink:#ffffff; --kerb-b:#ffffff; --good:#1d7a46; --bad:#b3261e; --shadow:rgba(20,23,31,.18);
+  --font-display:'Big Shoulders Display','Arial Narrow',Impact,sans-serif;
+  --font-body:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-data:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1015; --surface:#161a22; --surface-2:#1c212b; --ink:#eceef3; --muted:#98a0b2; --line:#2a3040;
+    --accent:#ff5245; --accent-ink:#14171f; --kerb-b:#e9ebf0; --good:#4cc27f; --bad:#ff7b70; --shadow:rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1015; --surface:#161a22; --surface-2:#1c212b; --ink:#eceef3; --muted:#98a0b2; --line:#2a3040;
+  --accent:#ff5245; --accent-ink:#14171f; --kerb-b:#e9ebf0; --good:#4cc27f; --bad:#ff7b70; --shadow:rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:radial-gradient(circle at 10% 0%,rgba(211,36,28,.06),transparent 28%),var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5}
+h1,h2,h3{font-family:var(--font-display);text-transform:uppercase;letter-spacing:.015em;line-height:1;margin:0;text-wrap:balance}
+p{margin:0}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.auth-shell{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 15% 0%,rgba(211,36,28,.14),transparent 32%),var(--bg)}
+.auth-card{width:min(430px,100%);background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:32px;box-shadow:0 24px 70px var(--shadow)}
+.auth-brand{font-family:var(--font-display);font-size:42px;font-weight:900;line-height:.9;text-transform:uppercase;margin-bottom:8px}
+.auth-sub{color:var(--muted);margin-bottom:26px}.auth-form{display:grid;gap:14px}.auth-form label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}.auth-form input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:11px;background:var(--surface-2);color:var(--ink);font:inherit}.auth-error{min-height:20px;color:var(--bad);font-size:13px}.auth-btn{width:100%;padding:13px 16px;border:0;border-radius:11px;background:var(--accent);color:var(--accent-ink);font-weight:800;cursor:pointer}.top-actions{display:flex;align-items:center;justify-content:center;flex:0 0 auto}.logout{margin-left:0}.auth-lock{font-family:var(--font-data);font-size:11px;color:var(--muted);margin-top:16px}
+.wrap{max-width:1120px;margin-inline:auto;padding-inline:16px}
+main.wrap{padding-block:24px 72px;display:flex;flex-direction:column;gap:24px}
+.muted{color:var(--muted)}
+.sub{color:var(--muted);font-size:12.5px}
+.lbl{display:block;font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+
+
+/* ---------- premium cover ---------- */
+.cover{position:relative;min-height:330px;border-radius:18px;overflow:hidden;background:#111;color:#fff;
+  box-shadow:0 18px 50px rgba(15,18,28,.20);isolation:isolate}
+.cover-bg{position:absolute;inset:0;background-image:linear-gradient(90deg,rgba(7,10,16,.88) 0%,rgba(7,10,16,.52) 45%,rgba(7,10,16,.12) 100%);background-size:cover;background-position:center}
+.cover:after{content:"";position:absolute;inset:auto 0 0;height:7px;background:repeating-linear-gradient(90deg,var(--accent) 0 28px,#fff 28px 56px);z-index:2}
+.cover-content{position:relative;z-index:1;min-height:330px;padding:34px;display:flex;flex-direction:column;justify-content:flex-end;gap:12px}
+.cover-kicker{font:600 12px var(--font-data);letter-spacing:.12em;text-transform:uppercase;opacity:.82}
+.cover h2{font-size:clamp(42px,8vw,76px);font-weight:900;max-width:760px}
+.cover p{max-width:650px;color:rgba(255,255,255,.78);font-size:15px}
+.cover-next{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.cover-pill{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.10);backdrop-filter:blur(8px);border-radius:999px;padding:7px 11px;font-size:12px}
+.cover-pill b{color:#fff}
+.race-lock{opacity:.58;cursor:not-allowed!important;position:relative}
+.race-thumb{width:110px;height:62px;object-fit:cover;border-radius:8px;display:block;background:#ddd}
+.race-cell{display:flex;align-items:center;gap:10px;min-width:260px}
+.race-cell .race-info{min-width:0}
+.race-photo{width:100%;height:220px;object-fit:cover;border-radius:12px;display:block;background:#ddd}
+.photo-credit{font-size:10px;color:var(--muted);margin-top:5px}
+
+.race-lock:hover td{background:transparent!important}
+.race-lock .lock-note{font-size:11px;color:var(--muted);font-weight:600}
+@media(max-width:760px){
+  .topin{gap:8px 12px}
+  .brand{max-width:55%}
+  .header-right{max-width:45%}
+  .top-role{position:static;transform:none;order:0;width:auto;justify-content:flex-start;text-align:left}
+}
+@media(max-width:640px){.cover,.cover-content{min-height:285px}.cover-content{padding:24px}.cover h2{font-size:42px}}
+
+/* header */
+.top{background:var(--surface);border-bottom:1px solid var(--line)}
+.kerb{height:8px;background:repeating-linear-gradient(90deg,var(--accent) 0 28px,var(--kerb-b) 28px 56px)}
+.topin{position:relative;display:flex;align-items:center;justify-content:flex-start;gap:8px 14px;padding:16px 16px;max-width:none;width:100%;box-sizing:border-box}
+.brand{display:flex;align-items:baseline;min-width:0;flex:0 0 auto}
+.brand h1{font-size:clamp(30px,6vw,48px);font-weight:900}
+.season{font:500 13px var(--font-data);color:var(--muted);margin-left:8px}
+.ro{font:600 11px var(--font-body);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:2px 9px}
+.top-role{position:static;transform:none;margin:0;white-space:nowrap;text-align:left;flex:0 0 auto}
+.header-right{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-left:auto;min-width:0}
+.tabs{display:flex;gap:2px;overflow-x:auto;max-width:100%}
+.tab{appearance:none;border:0;background:none;transition:.18s ease;font:600 14px var(--font-body);color:var(--muted);padding:10px 12px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--ink)}
+.tab[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
+
+/* panels & tables */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 28px rgba(20,23,31,.06);min-width:0}
+.ph{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.ph h2{font-size:22px;font-weight:800}
+.pb{padding:16px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font:600 11px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:9px 12px;white-space:nowrap}
+td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:middle}
+th.num,td.num{text-align:right}
+td.num{font-family:var(--font-data);font-weight:500}
+td.pts{font-weight:600}
+.pos{font:800 20px var(--font-display);width:52px;white-space:nowrap}
+tr[data-act]{cursor:pointer}
+tr[data-act]:hover td{background:var(--surface-2)}
+.who{display:flex;align-items:center;gap:10px;min-width:0}
+.who b{font-weight:600}
+.who>span{min-width:0}
+.plate{display:inline-grid;place-items:center;min-width:34px;height:26px;padding-inline:6px;border-radius:6px;font:800 18px/1 var(--font-display);flex:none}
+.plate.lg{min-width:88px;height:68px;font-size:46px;border-radius:12px}
+.chip{display:inline-block;font:600 11px var(--font-body);letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.dnf{color:var(--bad)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;flex:none}
+
+/* buttons & fields */
+.btn{font:600 13.5px var(--font-body);padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn:hover{background:var(--surface-2);transform:translateY(-1px)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{filter:brightness(1.06)}
+.btn.danger{color:var(--bad)}
+.btn.danger.armed{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+input[type=checkbox]{width:auto}
+input[type=color]{padding:2px;height:38px;width:64px;cursor:pointer}
+textarea{resize:vertical;min-height:88px}
+.f{display:grid;gap:5px;min-width:0}
+.f label{font-size:12.5px;font-weight:600;color:var(--muted)}
+.f .hint{font-size:12px;color:var(--muted)}
+.check{display:flex;align-items:center;gap:8px;font-weight:500;color:var(--ink)}
+.row2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--surface);color:var(--muted);font:600 13px var(--font-body);padding:6px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+/* summary strip */
+.pulse{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px 28px}
+.pulse>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.big{font:800 34px/1 var(--font-display)}
+.big small{font:500 14px var(--font-data);color:var(--muted);margin-left:4px}
+.bar{display:block;height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:2px}
+.bar i{display:block;height:100%;background:var(--accent)}
+
+/* columns */
+.cols{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:880px){.cols{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){.hide-sm{display:none}}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.rcard{display:flex;align-items:center;gap:12px;text-align:left;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;color:var(--ink)}
+.rcard:hover{background:var(--surface-2)}
+.rcard .plate{min-width:46px;height:40px;font-size:26px}
+.rcard b{display:block;font-weight:600}
+.rcard .pp{margin-left:auto;text-align:right;font:600 15px var(--font-data)}
+.rcard .pp small{display:block;font:500 11px var(--font-body);color:var(--muted)}
+
+/* profile */
+.phead{display:flex;flex-wrap:wrap;align-items:center;gap:16px 22px}
+.phead h2{font-size:clamp(30px,6vw,46px);font-weight:900}
+.phead .info{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1 1 260px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.stats>div{background:var(--surface);padding:12px 14px}
+.stats .v{display:block;font:800 32px/1.1 var(--font-display);margin-top:2px}
+.back{border:0;background:none;color:var(--muted);font:600 13px var(--font-body);cursor:pointer;padding:0;align-self:flex-start}
+.back:hover{color:var(--ink)}
+.bio{max-width:65ch;white-space:pre-wrap}
+
+/* chart */
+.chartbox{position:relative;padding:8px 12px 4px}
+.chartbox svg{display:block;width:100%;height:auto}
+.grid{stroke:var(--line);stroke-width:1}
+.ax{fill:var(--muted);font:11px var(--font-data)}
+.xh{stroke:var(--muted);stroke-dasharray:3 3;visibility:hidden}
+.chart-hit{touch-action:pan-y;fill:transparent}
+.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px;box-shadow:0 6px 24px var(--shadow);min-width:170px;z-index:2}
+.tip-h{font-weight:600;margin-bottom:4px}
+.tip-r{display:flex;align-items:center;gap:8px;padding-block:1px}
+.tip-r i{width:10px;height:10px;border-radius:2px;flex:none}
+.tip-r span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tip-r b{font-family:var(--font-data);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;padding:4px 16px 14px;font-size:12.5px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{display:inline-block;width:22px;height:0}
+
+/* messages */
+.banner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;border:1px dashed var(--muted);border-radius:10px;padding:10px 14px;background:var(--surface)}
+.empty{padding:28px 22px;display:grid;gap:16px;max-width:680px}
+.empty h2{font-size:34px;font-weight:900}
+.steps{margin:0;padding-left:20px;display:grid;gap:6px}
+.note{padding:22px 16px;color:var(--muted)}
+
+/* overlay */
+.ov{position:fixed;inset:0;background:rgba(10,12,18,.58);display:flex;align-items:flex-start;justify-content:center;padding:calc(20px + env(safe-area-inset-top,0px)) 16px 24px;overflow-y:auto;z-index:50}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:12px;width:min(620px,100%);box-shadow:0 20px 60px var(--shadow)}
+.sheet.wide{width:min(880px,100%)}
+.sh{padding:16px 18px;border-bottom:1px solid var(--line)}
+.sh h2{font-size:26px;font-weight:800}
+.sb{padding:16px 18px;display:grid;gap:14px}
+.sf{padding:12px 18px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:8px;position:sticky;bottom:0;background:var(--surface);border-radius:0 0 12px 12px}
+.sf .msg{margin-right:auto;font-size:12.5px;color:var(--bad);min-width:0}
+.sheet select.pos-sel{width:96px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;z-index:80;max-width:calc(100% - 32px)}
+@media (prefers-reduced-motion:no-preference){.bar i{transition:width .4s ease}}
+</style>
+
+<div id="app"></div>
+<div id="overlay" hidden></div>
+<div id="toast" role="status" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+'use strict';
+
+/* ---------- state ---------- */
+var DEFAULT_GP=[25,20,16,13,11,10,9,8,7,6,5,4,3,2,1];
+var DEFAULT_CFG={name:'Mundial MotoGP',season:'2023',gp:DEFAULT_GP,flPoint:0,example:false};
+var FIXED_RACES=[
+{id:'g1',round:1,name:'GP de Portugal',circuit:'Autódromo Internacional do Algarve',date:'2023-03-26',photo:'https://www.portugalresident.com/wp-content/uploads/2025/01/AIA-racetrack-3-scaled-e1724240756750.jpg'},
+{id:'g2',round:2,name:'GP de Argentina',circuit:'Termas de Río Hondo',date:'2023-04-02',photo:'https://www.civitatis.com/f/argentina/termas-de-rio-hondo/tour-termas-rio-hondo-r32.jpg'},
+{id:'g3',round:3,name:'GP de las Américas',circuit:'Circuit of the Americas',date:'2023-04-16',photo:'https://img.band.com.br/image/2024/10/17/circuito-das-americas-circuit-of-the-americas-cota-121559.jpg'},
+{id:'g4',round:4,name:'GP de España',circuit:'Circuito de Jerez - Ángel Nieto',date:'2023-04-30',photo:'https://upload.wikimedia.org/wikipedia/commons/7/79/Circuito_Jerez_01.jpg'},
+{id:'g5',round:5,name:'GP de Francia',circuit:'Le Mans',date:'2023-05-14',photo:'https://storage.ghost.io/c/01/1c/011cf67e-79cc-4fa7-b92b-55803b7dec49/content/images/size/w2000/2025/04/DPPIPRODUCTION_00002330_0386.webp'},
+{id:'g6',round:6,name:'GP de Italia',circuit:'Autodromo Internazionale del Mugello',date:'2023-06-11',photo:'https://moto-addict.com/media/plg_system_cgwebp/_cache/images/articles/histoire/circuit-mugello/circuit-mugello-vue-ciel.webp?ver=2feb54a5ae923b00b6cd6be0a3bd93a3'},
+{id:'g7',round:7,name:'GP de Alemania',circuit:'Sachsenring',date:'2023-06-18',photo:'https://res.cloudinary.com/adacmkv/image/upload/c_crop%2Cw_1920%2Ch_1920%2Cq_auto%2Cf_auto/news/1_rsftlj'},
+{id:'g8',round:8,name:'GP de los Países Bajos',circuit:'TT Circuit Assen',date:'2023-06-25',photo:'https://www.racecracks.nl/content/uploads/2025/07/Assen-luchtfoto-2025-voor-site.png'},
+{id:'g9',round:9,name:'GP de Kazajistán',circuit:'Sokol International Racetrack',date:'2023-07-09',photo:'https://cdn-6.motorsport.com/images/amp/0oODjex0/s6/kazakhstan-track-for-2023-moto.jpg'},
+{id:'g10',round:10,name:'GP de Gran Bretaña',circuit:'Silverstone Circuit',date:'2023-08-06',photo:'https://img2.51gt3.com/rac/article/202412/c9159132d5fc40c2b246e1869299f1bc.jpg'},
+{id:'g11',round:11,name:'GP de Austria',circuit:'Red Bull Ring - Spielberg',date:'2023-08-20',photo:'https://upload.wikimedia.org/wikipedia/commons/c/cb/Luftaufnahme_%28c%29Red_Bull_Ring.jpg'},
+{id:'g12',round:12,name:'GP de Cataluña',circuit:'Circuit de Barcelona-Catalunya',date:'2023-09-03',photo:'https://s.yimg.com/ny/api/res/1.2/f3Y7ydzy5Vzlo2xL_2uKnA--/YXBwaWQ9aGlnaGxhbmRlcjt3PTk2MDtoPTY0MDtjZj13ZWJw/https%3A/media.zenfs.com/en/f1_chronicle_874/8dc8d8f8ebb14c416ecfa355cca7acc3'},
+{id:'g13',round:13,name:'GP de San Marino',circuit:'Misano World Circuit Marco Simoncelli',date:'2023-09-10',photo:'https://www.billetweb.fr/files/page/upload/486221/misano_circuit.jpg'},
+{id:'g14',round:14,name:'GP de la India',circuit:'Buddh International Circuit',date:'2023-09-24',photo:'https://i.pinimg.com/736x/0b/12/fb/0b12fb775b02e4248384fe17ae079197.jpg'},
+{id:'g15',round:15,name:'GP de Japón',circuit:'Mobility Resort Motegi',date:'2023-10-01',photo:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Twin_Ring_Motegi-2008.10.19.jpg'},
+{id:'g16',round:16,name:'GP de Indonesia',circuit:'Pertamina Mandalika International Street Circuit',date:'2023-10-15',photo:'https://commons.wikimedia.org/wiki/Special:Redirect/file/MotoGP%20di%20Sirkuit%20Balapan%20Pertamina%20Mandalika%2C%20NTB%2C%20Indonesia.jpg'},
+{id:'g17',round:17,name:'GP de Australia',circuit:'Phillip Island Grand Prix Circuit',date:'2023-10-22',photo:'https://www.phillipislandcircuit.com.au/wp-content/uploads/2020/10/Phillip-Island-Grand-Prix-Circuit-400x500.jpg'},
+{id:'g18',round:18,name:'GP de Tailandia',circuit:'Chang International Circuit',date:'2023-10-29',photo:'https://s.isanook.com/sp/0/ui/202/1012243/22fdc33af6e05e5a9269150a90488b43_1570264157.jpg'},
+{id:'g19',round:19,name:'GP de Malasia',circuit:'Sepang International Circuit',date:'2023-11-12',photo:'https://mb.com.ph/manilabulletin/uploads/images/2026/07/27/118908.webp'},
+{id:'g20',round:20,name:'GP de Catar',circuit:'Lusail International Circuit',date:'2023-11-19',photo:'https://media.licdn.com/dms/image/v2/D4D22AQHs_llTiyWqgA/feedshare-shrink_800/feedshare-shrink_800/0/1733076920942?e=2147483647&t=NLem-MWuQ2fB6SkVVh8Nh5JELdPfLMJ-KBLkBIw9Vss&v=beta'},
+{id:'g21',round:21,name:'GP de Valencia',circuit:'Circuit Ricardo Tormo',date:'2023-11-26',photo:'https://www.visitvalencia.com/sites/default/files/media/media-images/images/GALERIA_Circuit%20Ricardo%20Tormo_foto_aerea_circuit_ricardo_tormo_peque.jpg'}
+];
+
+var S={cfg:Object.assign({},DEFAULT_CFG),teams:[],riders:[],races:[],got:{},loaded:false,status:'loading',
+  tab:'mundial',riderId:null,raceId:null,chartMode:'riders',confirm:'',canWrite:true};
+var db=null, CH={}, confirmTimer=0, toastTimer=0;
+var $app=document.getElementById('app'), $ov=document.getElementById('overlay'), $toast=document.getElementById('toast');
+var TABS=[['mundial','Mundial'],['carreras','Carreras'],['pilotos','Pilotos'],['ajustes','Ajustes']];
+
+/* ---------- autenticación y almacenamiento Supabase ---------- */
+function isLogged(){return !!window.__motogpUser;}
+function renderLogin(msg){
+  $app.innerHTML='<div class="auth-shell"><section class="auth-card"><div class="auth-brand">Mundial MotoGP</div><p class="auth-sub">Acceso de administrador</p><form id="f-login" class="auth-form" autocomplete="on"><div><label for="login-email">Email</label><input id="login-email" name="email" type="email" autocomplete="email" placeholder="admin@ejemplo.com" required></div><div><label for="login-pass">Contraseña</label><input id="login-pass" name="password" type="password" autocomplete="current-password" required></div><div class="auth-error" id="login-error">'+esc(msg||'')+'</div><button class="auth-btn" type="submit">Iniciar sesión</button></form><div class="auth-lock">Acceso protegido por Supabase Auth</div></section></div>';
+  var u=document.getElementById('login-email');if(u)u.focus();
+}
+
+async function installFixedSchedule(){
+  // Migra el calendario fijo a Supabase sin sobrescribir resultados existentes.
+  try{
+    if(!db)return;
+    var existing=await db.collection('races').getAll();
+    var byId={}; existing.forEach(function(r){byId[r.id]=r;});
+    var jobs=[];
+    FIXED_RACES.forEach(function(base){
+      if(!byId[base.id]) jobs.push(put('races/'+base.id,Object.assign({},base,{gp:{},pole:'',fl:''})));
+    });
+    var cfg=await db.doc('settings/main').get();
+    if(!cfg.exists) jobs.push(put('settings/main',Object.assign({},DEFAULT_CFG)));
+    await Promise.all(jobs);
+  }catch(e){ console.error(e); }
+}
+function supabaseDB(){
+  var client=window.supabase.createClient(
+    'https://hooawrsgrbmqwhkgdjqo.supabase.co',
+    'sb_publishable_-R2Oy3D8nzphZYNEZo13-w_047Uaovb'
+  );
+  var listeners={};
+  function tableName(col){return col;}
+  function toDb(col,data){
+    var x=Object.assign({},data);
+    if(col==='riders'){if('teamId' in x){x.team_id=x.teamId;delete x.teamId;}}
+    if(col==='races'){if('round' in x){x.round=x.round;} }
+    if(col==='settings'){if('flPoint' in x){x.fl_point=x.flPoint;delete x.flPoint;}}
+    return x;
+  }
+  function fromDb(col,row){
+    var x=Object.assign({},row);
+    if(col==='riders'&&'team_id' in x){x.teamId=x.team_id;delete x.team_id;}
+    if(col==='settings'&&'fl_point' in x){x.flPoint=x.fl_point;delete x.fl_point;}
+    return x;
+  }
+  async function getAll(col){
+    var q=await client.from(tableName(col)).select('*');
+    if(q.error)throw q.error;
+    return (q.data||[]).map(function(r){return Object.assign({id:r.id},fromDb(col,r));});
+  }
+  async function getDoc(col,id){
+    var q=await client.from(tableName(col)).select('*').eq('id',id).maybeSingle();
+    if(q.error)throw q.error;
+    return {exists:!!q.data,id:id,data:function(){return q.data?fromDb(col,q.data):undefined;}};
+  }
+  function notify(col){
+    (listeners[col]||[]).forEach(function(fn){getAll(col).then(function(rows){fn({docs:rows.map(function(r){return {id:r.id,data:function(){var x=Object.assign({},r);delete x.id;return x;}};})});}).catch(console.error);});
+  }
+  function watch(col,fn,fail){
+    (listeners[col]||(listeners[col]=[])).push(fn);
+    getAll(col).then(function(rows){fn({docs:rows.map(function(r){return {id:r.id,data:function(){var x=Object.assign({},r);delete x.id;return x;}};})});}).catch(fail||console.error);
+  }
+  ['teams','riders','races','settings'].forEach(function(col){
+    client.channel('motogp-'+col).on('postgres_changes',{event:'*',schema:'public',table:col},function(){notify(col);}).subscribe();
+  });
+  function makeDoc(col,id){
+    var did=id||('id-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9));
+    return {id:did,
+      onSnapshot:function(fn,fail){getDoc(col,did).then(fn).catch(fail||console.error);},
+      get:function(){return getDoc(col,did);},
+      set:function(data){return client.from(tableName(col)).upsert(toDb(col,Object.assign({},data,{id:did}))).select().single().then(function(q){if(q.error)throw q.error;notify(col);return q.data;});},
+      delete:function(){return client.from(tableName(col)).delete().eq('id',did).then(function(q){if(q.error)throw q.error;notify(col);});}
+    };
+  }
+  return {
+    collection:function(col){return {
+      onSnapshot:function(fn,fail){watch(col,fn,fail);},
+      doc:function(id){return makeDoc(col,id);},
+      getAll:function(){return getAll(col);}
+    };
+    },
+    doc:function(path){var p=String(path).split('/'),col=p[0],id=p[1];return makeDoc(col,id);},
+    client:client
+  };
+}
+function logout(){
+  if(!db||!db.client){location.reload();return;}
+  db.client.auth.signOut().then(function(){window.__motogpUser=null;location.reload();}).catch(function(e){
+    console.error(e);toast('No se pudo cerrar la sesión.');
+  });
+}
+
+/* ---------- helpers ---------- */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function hex(c){return /^#[0-9a-fA-F]{6}$/.test(c||'')?c:'#8a90a0';}
+function textOn(c){var h=hex(c);var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return (0.299*r+0.587*g+0.114*b)>150?'#101218':'#ffffff';}
+function fmtDate(s){if(!s)return '';var p=String(s).split('-').map(Number);if(!p[0])return '';return new Date(p[0],p[1]-1,p[2]).toLocaleDateString('es-ES',{day:'numeric',month:'short'});}
+function ord(n){return n+'.º';}
+function surname(n){var p=String(n||'').trim().split(/\s+/);return p[p.length-1]||'';}
+function teamOf(r){return S.teams.find(function(t){return t.id===r.teamId;})||null;}
+function riderById(id){return S.riders.find(function(r){return r.id===id;})||null;}
+function hasResults(race){return !!race.gp&&Object.keys(race.gp).length>0;}
+function zeros(n){return new Array(n).fill(0);}
+function plate(r,cls){var t=teamOf(r),c=hex(t&&t.color);return '<span class="plate '+(cls||'')+'" style="background:'+c+';color:'+textOn(c)+'">'+esc(r.number===''||r.number==null?'–':r.number)+'</span>';}
+function rankVal(v){return typeof v==='number'?v:(v==='DNF'?1000:1001);}
+function toast(msg){$toast.textContent=msg;$toast.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(function(){$toast.hidden=true;},3200);}
+function setHash(t){try{if(location.hash.slice(1)!==t)location.hash=t;}catch(e){}}
+function toTop(){try{window.scrollTo(0,0);}catch(e){}}
+
+function sortedRaces(){return S.races.slice().sort(function(a,b){return (a.round||0)-(b.round||0)||String(a.name).localeCompare(String(b.name));});}
+function previousRace(race){
+  var rs=sortedRaces(),i=rs.findIndex(function(x){return x.id===race.id;});
+  return i>0?rs[i-1]:null;
+}
+function canEnterResults(race){
+  var prev=previousRace(race);
+  return !prev||hasResults(prev);
+}
+function nextPendingRace(){
+  return sortedRaces().find(function(r){return !hasResults(r);})||null;
+}
+function coverHtml(C){
+  var next=nextPendingRace(), total=C.races.length, done=C.done.length;
+  var title=next?next.name:'Mundial completado';
+  var circuit=next?(next.circuit||'Circuito por definir'):'Todas las carreras tienen resultados';
+  var date=next?fmtDate(next.date):'';
+  return '<section class="cover"><div class="cover-bg" style="background-image:linear-gradient(90deg,rgba(7,10,16,.88) 0%,rgba(7,10,16,.52) 45%,rgba(7,10,16,.12) 100%),url(\''+(next&&next.photo?esc(next.photo):'')+'\')"></div><div class="cover-content">'+
+    '<span class="cover-kicker">MUNDIAL MOTOGP · TEMPORADA '+esc(S.cfg.season||'')+'</span>'+
+    '<h2>'+esc(title)+'</h2>'+
+    '<p>El campeonato, carrera a carrera. Introduce los resultados en orden y deja que la clasificación se actualice automáticamente.</p>'+
+    '<div class="cover-next"><span class="cover-pill">🏁 <b>'+esc(circuit)+'</b></span>'+
+    (date?'<span class="cover-pill">Ronda '+esc(next.round)+' · '+esc(date)+'</span>':'')+
+    '<span class="cover-pill">'+done+' / '+total+' carreras completadas</span></div>'+
+    '</div></section>';
+}
+
+function niceStep(max){var raw=max/5,mag=Math.pow(10,Math.floor(Math.log10(raw))),n=raw/mag;return (n<=1?1:n<=2?2:n<=5?5:10)*mag;}
+
+/* ---------- championship maths ---------- */
+function cmpPc(a,b){for(var i=0;i<30;i++){if(a[i]!==b[i])return b[i]-a[i];}return 0;}
+function compute(){
+  var cfg=S.cfg;
+  var races=S.races.slice().sort(function(a,b){return (a.round||0)-(b.round||0)||String(a.name).localeCompare(String(b.name));});
+  var done=races.filter(hasResults), st={};
+  S.riders.forEach(function(r){st[r.id]={r:r,pts:0,wins:0,podiums:0,poles:0,fl:0,dnf:0,entries:0,best:null,sumPos:0,nPos:0,pc:zeros(30),rows:{},cum:[0]};});
+  done.forEach(function(race){
+    S.riders.forEach(function(r){
+      var s=st[r.id], gp=(race.gp||{})[r.id], p=0;
+      if(gp!==undefined){
+        s.entries++;
+        if(typeof gp==='number'){
+          p+=cfg.gp[gp-1]||0; s.pc[Math.min(gp,30)-1]++;
+          if(gp===1)s.wins++; if(gp<=3)s.podiums++;
+          s.best=s.best===null?gp:Math.min(s.best,gp); s.sumPos+=gp; s.nPos++;
+        } else if(gp==='DNF'){s.dnf++;}
+      }
+      var isPole=race.pole===r.id, isFl=race.fl===r.id;
+      if(isPole)s.poles++;
+      if(isFl){s.fl++;p+=Number(cfg.flPoint)||0;}
+      s.rows[race.id]={gp:gp,pts:p,pole:isPole,fl:isFl};
+      s.pts+=p; s.cum.push(s.pts);
+    });
+  });
+  var ranked=Object.keys(st).map(function(k){return st[k];}).sort(function(a,b){return b.pts-a.pts||cmpPc(a.pc,b.pc)||String(a.r.name).localeCompare(String(b.r.name));});
+  var rank={}; ranked.forEach(function(s,i){rank[s.r.id]=i+1;});
+  var tt={};
+  S.teams.forEach(function(t){tt[t.id]={t:t,pts:0,pc:zeros(30),cum:zeros(done.length+1),riders:[]};});
+  Object.keys(st).forEach(function(k){
+    var s=st[k],x=tt[s.r.teamId]; if(!x)return;
+    x.pts+=s.pts; x.riders.push(s);
+    s.pc.forEach(function(n,i){x.pc[i]+=n;}); s.cum.forEach(function(v,i){x.cum[i]+=v;});
+  });
+  var tRanked=Object.keys(tt).map(function(k){return tt[k];}).sort(function(a,b){return b.pts-a.pts||cmpPc(a.pc,b.pc)||String(a.t.name).localeCompare(String(b.t.name));});
+  return {races:races,done:done,st:st,ranked:ranked,rank:rank,tt:tt,tRanked:tRanked};
+}
+
+/* ---------- charts ---------- */
+function lineChart(id,series,shortL,longL){
+  var W=720,H=300,ml=44,mr=18,mt=14,mb=30,n=shortL.length;
+  var all=[10]; series.forEach(function(s){all=all.concat(s.vals);});
+  var maxV=Math.max.apply(null,all);
+  var step=niceStep(maxV), yMax=Math.ceil(maxV/step)*step;
+  function X(i){return ml+i*(W-ml-mr)/(n-1);} function Y(v){return mt+(H-mt-mb)*(1-v/yMax);}
+  CH[id]={series:series,long:longL,W:W,ml:ml,mr:mr,n:n};
+  var g='',v; for(v=0;v<=yMax;v+=step){g+='<line class="grid" x1="'+ml+'" x2="'+(W-mr)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text class="ax" x="'+(ml-8)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+v+'</text>';}
+  var every=Math.ceil(n/12), xl='';
+  shortL.forEach(function(s,i){if(s&&i%every===0)xl+='<text class="ax" x="'+X(i)+'" y="'+(H-8)+'" text-anchor="middle">'+esc(s)+'</text>';});
+  var lines=series.slice().reverse().map(function(s){
+    var pts=s.vals.map(function(val,i){return X(i).toFixed(1)+','+Y(val).toFixed(1);}).join(' ');
+    var last=s.vals.length-1;
+    return '<polyline points="'+pts+'" fill="none" style="stroke:'+s.color+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"'+(s.dash?' stroke-dasharray="'+s.dash+'"':'')+'/>'+
+      '<circle cx="'+X(last).toFixed(1)+'" cy="'+Y(s.vals[last]).toFixed(1)+'" r="4.5" style="fill:'+s.color+';stroke:var(--surface)" stroke-width="2"/>';
+  }).join('');
+  var legend=series.map(function(s){return '<span><i style="border-top:3px '+(s.dash?'dashed':'solid')+' '+s.color+'"></i>'+esc(s.name)+'</span>';}).join('');
+  return '<div class="chartbox"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Evolución de puntos carrera a carrera">'+g+xl+lines+
+    '<line class="xh" x1="0" x2="0" y1="'+mt+'" y2="'+(H-mb)+'"/><rect class="chart-hit" data-chart="'+id+'" x="0" y="0" width="'+W+'" height="'+H+'"/></svg><div class="tip" hidden></div></div>'+
+    '<div class="legend">'+legend+'</div>';
+}
+function bindCharts(){
+  $app.querySelectorAll('.chart-hit').forEach(function(el){
+    var box=el.closest('.chartbox'), svg=el.ownerSVGElement, tip=box.querySelector('.tip'), xh=svg.querySelector('.xh'), c=CH[el.dataset.chart];
+    if(!c)return;
+    el.addEventListener('pointermove',function(e){
+      var r=svg.getBoundingClientRect(), rx=(e.clientX-r.left)/r.width*c.W;
+      var i=Math.round((rx-c.ml)/((c.W-c.ml-c.mr)/(c.n-1))); i=Math.max(0,Math.min(c.n-1,i));
+      var x=c.ml+i*(c.W-c.ml-c.mr)/(c.n-1);
+      xh.setAttribute('x1',x); xh.setAttribute('x2',x); xh.style.visibility='visible';
+      tip.replaceChildren();
+      var h=document.createElement('div'); h.className='tip-h'; h.textContent=c.long[i]; tip.appendChild(h);
+      c.series.map(function(s){return {s:s,v:s.vals[i]};}).sort(function(a,b){return b.v-a.v;}).forEach(function(o){
+        var row=document.createElement('div'); row.className='tip-r';
+        var sw=document.createElement('i'); sw.style.background=o.s.color;
+        var nm=document.createElement('span'); nm.textContent=o.s.name;
+        var val=document.createElement('b'); val.textContent=o.v;
+        row.append(sw,nm,val); tip.appendChild(row);
+      });
+      tip.hidden=false;
+      var br=box.getBoundingClientRect(), px=(r.left-br.left)+x/c.W*r.width, tw=tip.offsetWidth, left=px+14;
+      if(left+tw>br.width-4)left=px-tw-14;
+      tip.style.left=Math.max(4,left)+'px'; tip.style.top='12px';
+    });
+    el.addEventListener('pointerleave',function(){tip.hidden=true;xh.style.visibility='hidden';});
+  });
+}
+function chartSeries(C){
+  if(S.chartMode==='teams'){
+    return C.tRanked.slice(0,5).map(function(x){return {name:x.t.name,color:hex(x.t.color),dash:'',vals:x.cum};});
+  }
+  var used={};
+  return C.ranked.slice(0,5).map(function(x){
+    var t=teamOf(x.r),k=t?t.id:'-'; used[k]=(used[k]||0)+1;
+    return {name:x.r.name,color:hex(t&&t.color),dash:used[k]>1?'7 5':'',vals:x.cum};
+  });
+}
+function chartLabels(C){
+  return {short:[''].concat(C.done.map(function(r){return 'R'+r.round;})),long:['Inicio'].concat(C.done.map(function(r){return 'R'+r.round+' · '+r.name;}))};
+}
+
+/* ---------- views ---------- */
+function headerHtml(){
+  var tabs=TABS.map(function(t){return '<button class="tab" data-act="tab" data-tab="'+t[0]+'"'+(S.tab===t[0]?' aria-current="page"':'')+'>'+t[1]+'</button>';}).join('');
+  return '<header class="top"><div class="kerb" aria-hidden="true"></div><div class="wrap topin"><div class="brand"><h1>'+esc(S.cfg.name)+'</h1></div>'+
+    (S.cfg.season?'<span class="season">'+esc(S.cfg.season)+'</span>':'')+
+    '<span class="ro top-role">'+(S.canWrite?'Administrador':'Solo lectura')+'</span>'+
+    '<div class="header-right"><nav class="tabs" aria-label="Secciones">'+tabs+'</nav><div class="top-actions">'+(S.canWrite?'<button class="btn logout" data-act="logout">Salir</button>':'<button class="btn pri" data-act="login">Iniciar sesión</button>')+'</div></div></div></header>';
+}
+function delBtn(act,id,label){
+  var key=act+':'+(id||''), armed=S.confirm===key;
+  return '<button class="btn danger'+(armed?' armed':'')+'" data-act="'+act+'" data-id="'+esc(id||'')+'">'+(armed?'Pulsa otra vez para confirmar':label)+'</button>';
+}
+function emptyState(){
+  var W=S.canWrite, step=!S.teams.length?'teams':'riders';
+  var primary=!W?'':(step==='teams'?'<button class="btn pri" data-act="new-team">Crear el primer constructor</button>':'<button class="btn pri" data-act="new-rider">Añadir el primer piloto</button>');
+  return '<section class="panel empty"><h2>Empieza tu mundial</h2>'+
+    '<p class="muted">Aquí guardas los resultados de cada carrera de tu campeonato y se calculan solos el mundial de pilotos y el de constructores.</p>'+
+    '<ol class="steps"><li>Crea los constructores (equipos) con su color.</li><li>Añade los pilotos y asígnalos a un constructor.</li><li>Añade las carreras e introduce las posiciones de cada una.</li></ol>'+
+    (W?'<div class="btns">'+primary+'</div>':'<p class="muted">Todavía no hay datos.</p>')+'</section>';
+}
+function viewMundial(C){
+  if(!S.riders.length)return emptyState();
+  var nd=C.done.length,total=C.races.length,lead=C.ranked[0],sec=C.ranked[1],last=nd?C.done[nd-1]:null;
+  var winner=last&&S.riders.find(function(r){return (last.gp||{})[r.id]===1;});
+  var pulse='<section class="pulse" aria-label="Resumen">'+
+    '<div><span class="lbl">Carreras</span><span class="big">'+nd+'<small>de '+total+'</small></span><span class="bar"><i style="width:'+(total?Math.round(nd/total*100):0)+'%"></i></span></div>'+
+    '<div><span class="lbl">Líder</span>'+(nd&&lead?'<span class="who">'+plate(lead.r)+'<b>'+esc(lead.r.name)+'</b></span><span class="sub">'+lead.pts+' puntos</span>':'<span class="big">–</span>')+'</div>'+
+    '<div><span class="lbl">Ventaja</span><span class="big">'+(nd&&sec?'+'+(lead.pts-sec.pts):'–')+'</span><span class="sub">'+(nd&&sec?'sobre '+esc(sec.r.name):'')+'</span></div>'+
+    '<div><span class="lbl">Última carrera</span>'+(last?'<b>'+esc(last.name)+'</b><span class="sub">'+(winner?'Ganó '+esc(winner.name):'Sin ganador registrado')+'</span>':'<span class="big">–</span>')+'</div></section>';
+  var rrows=C.ranked.map(function(s,i){
+    var t=teamOf(s.r), gap=i===0||!nd?'':'−'+(lead.pts-s.pts);
+    return '<tr data-act="rider" data-id="'+esc(s.r.id)+'"><td class="pos">'+(nd?i+1:'–')+'</td><td><span class="who">'+plate(s.r)+'<span><b>'+esc(s.r.name)+'</b><div class="sub">'+esc(t?t.name:'Sin constructor')+'</div></span></span></td>'+
+      '<td class="num hide-sm">'+s.wins+'</td><td class="num hide-sm">'+s.podiums+'</td><td class="num hide-sm">'+gap+'</td><td class="num pts">'+s.pts+'</td></tr>';
+  }).join('');
+  var riderTable='<section class="panel"><div class="ph"><h2>Mundial de pilotos</h2></div><div class="tw"><table><thead><tr><th>Pos</th><th>Piloto</th><th class="num hide-sm">Vic</th><th class="num hide-sm">Pod</th><th class="num hide-sm">Dif</th><th class="num">Pts</th></tr></thead><tbody>'+rrows+'</tbody></table></div></section>';
+  var teamTable='';
+  if(C.tRanked.length){
+    var trows=C.tRanked.map(function(x,i){
+      var rs=x.riders.slice().sort(function(a,b){return b.pts-a.pts;}).map(function(s){return esc(surname(s.r.name))+' '+s.pts;}).join(' · ');
+      return '<tr><td class="pos">'+(nd?i+1:'–')+'</td><td><span class="who"><i class="sw" style="background:'+hex(x.t.color)+'"></i><span><b>'+esc(x.t.name)+'</b><div class="sub">'+(rs||'Sin pilotos')+'</div></span></span></td><td class="num pts">'+x.pts+'</td></tr>';
+    }).join('');
+    teamTable='<section class="panel"><div class="ph"><h2>Mundial de constructores</h2></div><div class="tw"><table><thead><tr><th>Pos</th><th>Constructor</th><th class="num">Pts</th></tr></thead><tbody>'+trows+'</tbody></table></div></section>';
+  }
+  var chart;
+  if(!nd){chart='<p class="note">Todavía no hay carreras con resultados. Añade una en la pestaña Carreras y aquí verás cómo evolucionan los puntos.</p>';}
+  else{var L=chartLabels(C);chart=lineChart('main-'+S.chartMode,chartSeries(C),L.short,L.long);}
+  var chartPanel='<section class="panel"><div class="ph"><h2>Evolución de puntos</h2><div class="seg" role="group" aria-label="Qué mostrar">'+
+    '<button data-act="chart-mode" data-mode="riders" aria-pressed="'+(S.chartMode==='riders')+'">Pilotos</button>'+
+    (C.tRanked.length?'<button data-act="chart-mode" data-mode="teams" aria-pressed="'+(S.chartMode==='teams')+'">Constructores</button>':'')+'</div></div>'+chart+'</section>';
+  return coverHtml(C)+pulse+'<div class="cols">'+riderTable+teamTable+'</div>'+chartPanel;
+}
+
+function viewCarreras(C){
+  if(S.raceId)return viewRace(C);
+  var W=S.canWrite;
+  var rows=C.races.map(function(r){
+    var done=hasResults(r), w=done?S.riders.find(function(x){return (r.gp||{})[x.id]===1;}):null, allowed=canEnterResults(r);
+    var attrs=allowed?' data-act="race" data-id="'+esc(r.id)+'"':'';
+    var lock=!done&&!allowed?'<div class="lock-note">Completa la anterior primero</div>':'';
+    var photo=r.photo?'<img class="race-thumb" src="'+esc(r.photo)+'" alt="Circuito de '+esc(r.name)+'" loading="lazy" onerror="this.style.display=\'none\'">':'';
+    return '<tr class="'+(!allowed?'race-lock':'')+'"'+attrs+'><td class="pos">'+esc(r.round)+'</td><td><div class="race-cell">'+photo+'<div class="race-info"><b>'+esc(r.name)+'</b><div class="sub">'+esc(r.circuit||'')+'</div>'+lock+'</div></div></td><td class="hide-sm">'+esc(fmtDate(r.date))+'</td><td>'+
+      (done?(w?'<span class="who">'+plate(w)+'<span>'+esc(w.name)+'</span></span>':'–'):(allowed?'<span class="chip">Lista para resultados</span>':'<span class="chip">Bloqueada</span>'))+'</td></tr>';
+  }).join('');
+  var body='<div class="tw"><table><thead><tr><th>Ronda</th><th>Gran Premio / circuito</th><th class="hide-sm">Fecha</th><th>Ganador</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  return '<section class="panel"><div class="ph"><h2>Calendario 2023</h2><span class="chip">21 carreras fijas</span></div>'+body+'</section>';
+}
+function resultTable(title,map,ptsArr,race){
+  var ent=Object.keys(map||{}).map(function(id){return {r:riderById(id),v:map[id]};}).filter(function(x){return x.r;}).sort(function(a,b){return rankVal(a.v)-rankVal(b.v);});
+  if(!ent.length)return '';
+  var rows=ent.map(function(x){
+    var t=teamOf(x.r), p=typeof x.v==='number'?(ptsArr[x.v-1]||0):0;
+    return '<tr data-act="rider" data-id="'+esc(x.r.id)+'"><td class="pos'+(typeof x.v==='number'?'':' dnf')+'">'+(typeof x.v==='number'?x.v:x.v)+'</td><td><span class="who">'+plate(x.r)+'<b>'+esc(x.r.name)+'</b></span></td><td class="hide-sm">'+esc(t?t.name:'')+'</td><td class="num pts">'+p+'</td></tr>';
+  }).join('');
+  return '<section class="panel"><div class="ph"><h2>'+title+'</h2></div><div class="tw"><table><thead><tr><th>Pos</th><th>Piloto</th><th class="hide-sm">Constructor</th><th class="num">Pts</th></tr></thead><tbody>'+rows+'</tbody></table></div></section>';
+}
+function viewRace(C){
+  var race=S.races.find(function(r){return r.id===S.raceId;});
+  if(!race){S.raceId=null;return viewCarreras(C);}
+  var W=S.canWrite, pole=riderById(race.pole), fl=riderById(race.fl);
+  var photo=race.photo?'<img class="race-photo" src="'+esc(race.photo)+'" alt="Circuito de '+esc(race.name)+'" onerror="this.style.display=\'none\'">':'';
+  var head='<section class="panel"><div class="pb" style="display:grid;gap:14px"><button class="back" data-act="back-races">← Calendario</button>'+
+    photo+
+    '<div><span class="lbl">Ronda '+esc(race.round)+(race.date?' · '+esc(fmtDate(race.date)):'')+'</span><h2 style="font-size:clamp(28px,5vw,42px);font-weight:900;margin-top:4px">'+esc(race.name)+'</h2>'+(race.circuit?'<p class="muted">'+esc(race.circuit)+'</p>':'')+'</div>'+
+    '<div class="btns">'+
+    (pole?'<span class="chip">Pole: '+esc(pole.name)+'</span>':'')+(fl?'<span class="chip">Vuelta rápida: '+esc(fl.name)+(Number(S.cfg.flPoint)?' (+'+Number(S.cfg.flPoint)+')':'')+'</span>':'')+'</div>'+
+    (W?'<div class="btns">'+(hasResults(race)?'<button class="btn pri" data-act="edit-results" data-id="'+esc(race.id)+'">Editar resultados</button>':(canEnterResults(race)?'<button class="btn pri" data-act="edit-results" data-id="'+esc(race.id)+'">Introducir resultados</button>':'<span class="chip">Completa la carrera anterior para desbloquear</span>'))+'</div>':'')+
+    '</div></section>';
+  var body=hasResults(race)?resultTable('Resultado del Gran Premio',race.gp,S.cfg.gp,race):'<p class="note">Esta carrera todavía no tiene resultados.</p>';
+  return head+body;
+}
+
+function viewPilotos(C){
+  if(S.riderId)return viewProfile(C);
+  var W=S.canWrite, nd=C.done.length;
+  var cards=C.ranked.map(function(s){
+    var t=teamOf(s.r);
+    return '<button class="rcard" data-act="rider" data-id="'+esc(s.r.id)+'">'+plate(s.r)+'<span style="min-width:0"><b>'+esc(s.r.name)+'</b><span class="sub">'+esc(t?t.name:'Sin constructor')+'</span></span><span class="pp">'+s.pts+'<small>'+(nd?ord(C.rank[s.r.id])+' del mundial':'puntos')+'</small></span></button>';
+  }).join('');
+  return '<section class="panel"><div class="ph"><h2>Pilotos</h2>'+(W?'<button class="btn pri" data-act="new-rider">Añadir piloto</button>':'')+'</div>'+
+    (S.riders.length?'<div class="pb"><div class="cards">'+cards+'</div></div>':'<p class="note">Aún no hay pilotos. Añade el primero.</p>')+'</section>';
+}
+function stat(l,v){return '<div><span class="lbl">'+l+'</span><span class="v">'+v+'</span></div>';}
+function viewProfile(C){
+  var s=C.st[S.riderId];
+  if(!s){S.riderId=null;return viewPilotos(C);}
+  var r=s.r,t=teamOf(r),nd=C.done.length,rank=C.rank[r.id],lead=C.ranked[0],W=S.canWrite;
+  
+  var head='<section class="panel"><div class="pb" style="display:grid;gap:14px"><button class="back" data-act="back-riders">← Pilotos</button><div class="phead">'+plate(r,'lg')+
+    '<div class="info"><h2>'+esc(r.name)+'</h2><div class="who">'+(t?'<i class="sw" style="background:'+hex(t.color)+'"></i><span>'+esc(t.name)+'</span>':'<span class="muted">Sin constructor</span>')+(r.country?'<span class="chip">'+esc(r.country)+'</span>':'')+'</div></div>'+
+    (W?'<div class="btns"><button class="btn" data-act="edit-rider" data-id="'+esc(r.id)+'">Editar</button>'+delBtn('del-rider',r.id,'Eliminar')+'</div>':'')+'</div>'+
+    (r.bio?'<p class="bio">'+esc(r.bio)+'</p>':'')+'</div></section>';
+  var stats='<div class="stats">'+
+    stat('Posición',nd?ord(rank):'–')+stat('Puntos',s.pts)+stat('Dif. con líder',nd&&rank>1?'−'+(lead.pts-s.pts):'–')+stat('Victorias',s.wins)+stat('Podios',s.podiums)+
+    stat('Poles',s.poles)+stat('Vueltas rápidas',s.fl)+stat('Abandonos',s.dnf)+stat('Mejor resultado',s.best===null?'–':'P'+s.best)+
+    stat('Posición media',s.nPos?(s.sumPos/s.nPos).toFixed(1):'–')+stat('Puntos por carrera',nd?(s.pts/nd).toFixed(1):'–')+'</div>';
+  var chart='';
+  if(nd){
+    var series=[{name:r.name,color:hex(t&&t.color),dash:'',vals:s.cum}];
+    if(lead&&lead.r.id!==r.id)series.push({name:lead.r.name+' (líder)',color:'var(--muted)',dash:'6 5',vals:lead.cum});
+    var L=chartLabels(C);
+    chart='<section class="panel"><div class="ph"><h2>Puntos carrera a carrera</h2></div>'+lineChart('rider',series,L.short,L.long)+'</section>';
+  }
+  function cell(v){return v===undefined?'<span class="muted">–</span>':(typeof v==='number'?'P'+v:'<span class="dnf">'+v+'</span>');}
+  var rows=C.done.map(function(race,i){
+    var x=s.rows[race.id]; if(!x)return '';
+    return '<tr data-act="race" data-id="'+esc(race.id)+'"><td class="pos">'+esc(race.round)+'</td><td><b>'+esc(race.name)+'</b></td><td>'+cell(x.gp)+'</td>'+
+      '<td class="hide-sm">'+(x.pole?'<span class="chip">Pole</span> ':'')+(x.fl?'<span class="chip">VR</span>':'')+'</td><td class="num pts">'+x.pts+'</td><td class="num hide-sm">'+s.cum[i+1]+'</td></tr>';
+  }).join('');
+  var table='<section class="panel"><div class="ph"><h2>Resultados</h2></div>'+(nd?'<div class="tw"><table><thead><tr><th>Ronda</th><th>Gran Premio</th><th>Carrera</th>'+'<th class="hide-sm"></th><th class="num">Pts</th><th class="num hide-sm">Acum.</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="note">Este piloto aún no tiene resultados.</p>')+'</section>';
+  return head+stats+chart+table;
+}
+
+function viewAjustes(C){
+  var c=S.cfg, W=S.canWrite, dis=W?'':' disabled';
+  var teamRows=S.teams.slice().sort(function(a,b){return String(a.name).localeCompare(String(b.name));}).map(function(t){
+    var n=S.riders.filter(function(r){return r.teamId===t.id;}).length;
+    return '<tr><td><span class="who"><i class="sw" style="background:'+hex(t.color)+'"></i><b>'+esc(t.name)+'</b></span></td><td class="sub">'+n+' '+(n===1?'piloto':'pilotos')+'</td><td>'+(W?'<div class="btns" style="justify-content:flex-end"><button class="btn" data-act="edit-team" data-id="'+esc(t.id)+'">Editar</button>'+delBtn('del-team',t.id,'Eliminar')+'</div>':'')+'</td></tr>';
+  }).join('');
+  var cfgPanel='<form id="f-cfg" class="panel"><div class="ph"><h2>Campeonato y puntuación</h2></div><div class="pb" style="display:grid;gap:14px">'+
+    '<div class="row2"><div class="f"><label for="cfg-name">Nombre del campeonato</label><input id="cfg-name" value="'+esc(c.name)+'" maxlength="60"'+dis+'></div><div class="f"><label for="cfg-season">Temporada</label><input id="cfg-season" value="'+esc(c.season)+'" maxlength="40" placeholder="Temporada 1"'+dis+'></div></div>'+
+    '<div class="f"><label for="cfg-gp">Puntos del Gran Premio (de 1.º en adelante)</label><input id="cfg-gp" value="'+esc(c.gp.join(', '))+'"'+dis+'><span class="hint">Separados por comas. Por defecto, el reparto oficial de MotoGP.</span></div>'+
+
+    '<div class="f" style="max-width:220px"><label for="cfg-fl">Puntos por vuelta rápida</label><input id="cfg-fl" type="number" min="0" step="1" value="'+esc(c.flPoint||0)+'"'+dis+'><span class="hint">0 si no da puntos.</span></div>'+
+    (W?'<div class="btns"><button class="btn pri" type="submit">Guardar cambios</button></div>':'')+'</div></form>';
+  var teamsPanel='<section class="panel"><div class="ph"><h2>Constructores</h2>'+(W?'<button class="btn pri" data-act="new-team">Añadir constructor</button>':'')+'</div>'+
+    (S.teams.length?'<div class="tw"><table><tbody>'+teamRows+'</tbody></table></div>':'<p class="note">Todavía no hay constructores. Crea uno para poder asignar pilotos.</p>')+'</section>';
+  var dataPanel='';
+  if(W){
+    dataPanel='<section class="panel"><div class="ph"><h2>Datos</h2></div><div class="pb" style="display:grid;gap:12px"><p class="muted">Todo se guarda automáticamente. Quien abra esta página ve el mismo campeonato.</p><div class="btns">'+
+      (!S.riders.length&&!S.teams.length&&!S.races.length?'<button class="btn" data-act="load-example">Cargar campeonato de ejemplo</button>':'')+
+      delBtn('reset-all','','Borrar todo el campeonato')+'</div></div></section>';
+  }
+  return '<div style="display:grid;gap:24px;max-width:760px">'+cfgPanel+teamsPanel+dataPanel+'</div>';
+}
+
+function render(){
+  var C=compute(), body;
+  if(S.status==='error'){body='<section class="panel empty"><h2>Algo ha fallado</h2><p class="muted">No se ha podido leer el campeonato. Recarga la página.</p></section>';}
+  else if(!S.loaded){body='<p class="muted">Cargando el campeonato…</p>';} 
+  else{
+    body=S.tab==='carreras'?viewCarreras(C):S.tab==='pilotos'?viewPilotos(C):S.tab==='ajustes'?viewAjustes(C):viewMundial(C);
+    if(S.cfg.example&&S.canWrite){
+      body='<div class="banner"><span>Estás viendo datos de ejemplo. Bórralos cuando quieras empezar tu campeonato.</span>'+delBtn('reset-all','','Borrar ejemplo')+'</div>'+body;
+    }
+  }
+  $app.innerHTML=headerHtml()+'<main class="wrap">'+body+'</main>';
+  bindCharts();
+}
+
+/* ---------- writes ---------- */
+var queues={};
+function chain(path,fn){var prev=queues[path]||Promise.resolve();var next=prev.catch(function(){}).then(fn);queues[path]=next;return next;}
+function put(path,data){return chain(path,function(){return db.doc(path).set(data);});}
+function remove(path){return chain(path,function(){return db.doc(path).delete();});}
+function attempt(fn,okMsg){
+  return Promise.resolve().then(fn).then(function(){if(okMsg)toast(okMsg);return true;}).catch(function(e){
+    toast('No se pudo guardar'+(e&&e.message?': '+e.message:'')+'.');return false;});
+}
+function newId(col){return db.collection(col).doc().id;}
+
+/* ---------- overlay ---------- */
+function openSheet(html,wide){
+  $ov.innerHTML='<div class="ov" data-act="ov-backdrop"><div class="sheet'+(wide?' wide':'')+'" role="dialog" aria-modal="true">'+html+'</div></div>';
+  $ov.hidden=false; document.body.style.overflow='hidden';
+  var f=$ov.querySelector('input,select,textarea'); if(f)f.focus();
+}
+function closeSheet(){$ov.hidden=true;$ov.innerHTML='';document.body.style.overflow='';}
+function foot(label){return '<div class="sf"><span class="msg" id="sheet-msg" aria-live="polite"></span><button type="button" class="btn" data-act="ov-close">Cancelar</button><button type="submit" class="btn pri" id="sheet-save">'+label+'</button></div>';}
+
+function openRiderForm(id){
+  var r=id?riderById(id):{}; if(id&&!r)return;
+  var teams=S.teams.slice().sort(function(a,b){return String(a.name).localeCompare(String(b.name));}).map(function(t){return '<option value="'+esc(t.id)+'"'+(t.id===r.teamId?' selected':'')+'>'+esc(t.name)+'</option>';}).join('');
+  openSheet('<form id="f-rider" data-id="'+esc(id||'')+'"><div class="sh"><h2>'+(id?'Editar piloto':'Nuevo piloto')+'</h2></div><div class="sb">'+
+    '<div class="row2"><div class="f"><label for="rf-name">Nombre</label><input id="rf-name" value="'+esc(r.name||'')+'" maxlength="60" required></div><div class="f"><label for="rf-num">Dorsal</label><input id="rf-num" type="number" min="0" max="999" value="'+esc(r.number==null?'':r.number)+'"></div></div>'+
+    '<div class="row2"><div class="f"><label for="rf-team">Constructor</label><select id="rf-team"><option value="">Sin constructor</option>'+teams+'</select>'+(S.teams.length?'':'<span class="hint">Crea antes un constructor en Ajustes.</span>')+'</div><div class="f"><label for="rf-country">Nacionalidad</label><input id="rf-country" value="'+esc(r.country||'')+'" maxlength="30" placeholder="España"></div></div>'+
+    '<div class="f"><label for="rf-bio">Notas del piloto</label><textarea id="rf-bio" maxlength="600" placeholder="Estilo, historia en tu campeonato, apodo…">'+esc(r.bio||'')+'</textarea></div></div>'+foot('Guardar')+'</form>');
+}
+function openTeamForm(id){
+  var t=id?S.teams.find(function(x){return x.id===id;}):{}; if(id&&!t)return;
+  openSheet('<form id="f-team" data-id="'+esc(id||'')+'"><div class="sh"><h2>'+(id?'Editar constructor':'Nuevo constructor')+'</h2></div><div class="sb"><div class="row2"><div class="f"><label for="tf-name">Nombre</label><input id="tf-name" value="'+esc(t.name||'')+'" maxlength="40" required></div><div class="f"><label for="tf-color">Color</label><input id="tf-color" type="color" value="'+hex(t.color||'#d3241c')+'"></div></div></div>'+foot('Guardar')+'</form>');
+}
+function openRaceForm(id){
+  var r=id?S.races.find(function(x){return x.id===id;}):null; if(id&&!r)return;
+  var next=S.races.reduce(function(m,x){return Math.max(m,x.round||0);},0)+1;
+  openSheet('<form id="f-race" data-id="'+esc(id||'')+'"><div class="sh"><h2>'+(id?'Datos de la carrera':'Nueva carrera')+'</h2></div><div class="sb">'+
+    '<div class="row2"><div class="f"><label for="gf-name">Gran Premio</label><input id="gf-name" value="'+esc(r?r.name:'')+'" maxlength="60" placeholder="GP de España" required></div><div class="f"><label for="gf-circuit">Circuito</label><input id="gf-circuit" value="'+esc(r?r.circuit||'':'')+'" maxlength="60" placeholder="Jerez"></div></div>'+
+    '<div class="row2"><div class="f"><label for="gf-date">Fecha</label><input id="gf-date" type="date" value="'+esc(r?r.date||'':'')+'"></div><div class="f"><label for="gf-round">Ronda</label><input id="gf-round" type="number" min="1" max="99" value="'+esc(r?r.round:next)+'" required></div></div>'+
+foot('Guardar')+'</form>');
+}
+function posOptions(sel,n){
+  var o='<option value="">–</option>',i;
+  for(i=1;i<=n;i++)o+='<option value="'+i+'"'+(sel===i?' selected':'')+'>P'+i+'</option>';
+  return o+'<option value="DNF"'+(sel==='DNF'?' selected':'')+'>DNF</option><option value="DSQ"'+(sel==='DSQ'?' selected':'')+'>DSQ</option>';
+}
+function riderOptions(sel){
+  return '<option value="">–</option>'+S.riders.slice().sort(function(a,b){return (a.number||0)-(b.number||0);}).map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===sel?' selected':'')+'>'+esc((r.number===''||r.number==null?'':r.number+' · ')+r.name)+'</option>';}).join('');
+}
+function openResultsForm(id){
+  var race=S.races.find(function(x){return x.id===id;}); if(!race)return;
+  if(!S.riders.length){toast('Añade pilotos antes de introducir resultados.');return;}
+  var n=S.riders.length, gp=race.gp||{};
+  var rows=S.riders.slice().sort(function(a,b){return (a.number||0)-(b.number||0);}).map(function(r){
+    return '<tr data-rid="'+esc(r.id)+'"><td><span class="who">'+plate(r)+'<span>'+esc(r.name)+'</span></span></td><td><select class="pos-sel" id="gp-'+esc(r.id)+'" aria-label="Posición en carrera de '+esc(r.name)+'">'+posOptions(gp[r.id],n)+'</select></td><td class="num live">0</td></tr>';
+  }).join('');
+  openSheet('<form id="f-results" data-id="'+esc(id)+'"><div class="sh"><span class="lbl">Ronda '+esc(race.round)+'</span><h2>'+esc(race.name)+'</h2></div><div class="sb">'+
+    '<div class="row2"><div class="f"><label for="rs-pole">Qualy · Pole position</label><select id="rs-pole">'+riderOptions(race.pole)+'</select></div><div class="f"><label for="rs-fl">Vuelta rápida</label><select id="rs-fl">'+riderOptions(race.fl)+'</select></div></div>'+
+    '<p class="sub">Registra la pole de la Qualy y la clasificación de la Carrera. Deja en «–» a quien no participó. Pon DNF si no terminó y DSQ si fue descalificado.</p>'+
+    '<div class="tw"><table><thead><tr><th>Piloto</th><th>Carrera</th><th class="num">Pts</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>'+foot('Guardar resultados')+'</form>',true);
+  updateResultsForm();
+}
+function readResultsForm(f){
+  var gp={},errs=[],seenG={};
+  function parse(v){return v===''?undefined:(v==='DNF'||v==='DSQ')?v:Number(v);}
+  S.riders.forEach(function(r){
+    var g=parse(f.elements['gp-'+r.id].value);
+    if(g!==undefined){gp[r.id]=g; if(typeof g==='number'){if(seenG[g])errs.push('P'+g+' repetida en la carrera');seenG[g]=1;}}
+  });
+  return {gp:gp,pole:f.elements['rs-pole'].value,fl:f.elements['rs-fl'].value,errs:errs};
+}
+function updateResultsForm(){
+  var f=document.getElementById('f-results'); if(!f)return;
+  var d=readResultsForm(f);
+  f.querySelectorAll('tr[data-rid]').forEach(function(tr){
+    var id=tr.dataset.rid,p=0,g=d.gp[id];
+    if(typeof g==='number')p+=S.cfg.gp[g-1]||0; if(d.fl===id)p+=Number(S.cfg.flPoint)||0;
+    tr.querySelector('.live').textContent=p;
+  });
+  var uniq=d.errs.filter(function(e,i){return d.errs.indexOf(e)===i;});
+  document.getElementById('sheet-msg').textContent=uniq.join(' · ');
+  document.getElementById('sheet-save').disabled=uniq.length>0;
+}
+
+/* ---------- example data ---------- */
+function loadExample(){
+  var teams=[['t1','Ducati','#d7261e'],['t2','Aprilia','#7b3fe4'],['t3','KTM','#f26a10'],['t4','Yamaha','#1f5fd6'],['t5','Honda','#e9b400']];
+  var riders=[['r1','Álex Roca',11,'t1','España'],['r2','Iker Navas',21,'t1','España'],['r3','Luca Bianchi',33,'t2','Italia'],['r4','Enzo Rossetti',44,'t2','Italia'],['r5','Dani Vidal',55,'t3','España'],
+    ['r6','Tom Hendry',64,'t3','Reino Unido'],['r7','Kenji Arai',72,'t4','Japón'],['r8','Pol Serra',77,'t4','España'],['r9','Diego Mora',88,'t5','España'],['r10','Joan Prats',99,'t5','España']];
+  function mk(order,dnf){var m={};order.forEach(function(id,i){m[id]=i+1;});(dnf||[]).forEach(function(id){m[id]='DNF';});return m;}
+  var races=[
+    {id:'g1',round:1,name:'GP de Catar',circuit:'Lusail',date:'2026-03-01',gp:mk(['r3','r1','r5','r2','r7','r4','r9','r6','r8'],['r10']),pole:'r1',fl:'r3'},
+    {id:'g2',round:2,name:'GP de España',circuit:'Jerez',date:'2026-03-22',photo:'https://upload.wikimedia.org/wikipedia/commons/7/79/Circuito_Jerez_01.jpg',gp:mk(['r1','r2','r3','r4','r5','r6','r8','r7'],['r9','r10']),pole:'r2',fl:'r1'},
+    {id:'g3',round:3,name:'GP de Francia',circuit:'Le Mans',date:'2026-04-12',gp:mk(['r5','r3','r1','r2','r4','r7','r6','r10','r9','r8']),pole:'r3',fl:'r5'},
+    {id:'g4',round:4,name:'GP de Italia',circuit:'Mugello',date:'2026-05-03',photo:'https://upload.wikimedia.org/wikipedia/commons/c/cb/Luftaufnahme_%28c%29Red_Bull_Ring.jpg',gp:{},pole:'',fl:''},
+    {id:'g5',round:5,name:'GP de Cataluña',circuit:'Montmeló',date:'2026-05-24',gp:{},pole:'',fl:''},
+    {id:'g6',round:6,name:'GP de Alemania',circuit:'Sachsenring',date:'2026-06-14',gp:{},pole:'',fl:''}];
+  toast('Cargando el ejemplo…');
+  var jobs=[function(){return put('settings/main',Object.assign({},DEFAULT_CFG,{season:'Temporada de ejemplo',example:true}));}];
+  teams.forEach(function(t){jobs.push(function(){return put('teams/'+t[0],{name:t[1],color:t[2]});});});
+  riders.forEach(function(r){jobs.push(function(){return put('riders/'+r[0],{name:r[1],number:r[2],teamId:r[3],country:r[4],bio:''});});});
+  /* El calendario real es fijo y se instala desde FIXED_RACES. */
+  return jobs.reduce(function(p,j){return p.then(j);},Promise.resolve());
+}
+function resetAll(){
+  var jobs=[];
+  S.riders.forEach(function(r){jobs.push(function(){return remove('riders/'+r.id);});});
+  S.teams.forEach(function(t){jobs.push(function(){return remove('teams/'+t.id);});});
+  // Reiniciar significa dejar las 21 carreras del calendario desde cero:
+  // mismo calendario, pero sin resultados, pole ni vuelta rápida.
+  FIXED_RACES.forEach(function(base){
+    jobs.push(function(){
+      return put('races/'+base.id,Object.assign({},base,{gp:{},pole:'',fl:''}));
+    });
+  });
+  jobs.push(function(){
+    return put('settings/main',Object.assign({},DEFAULT_CFG,{season:'2023',example:false}));
+  });
+  // Recargar al terminar reconstruye por completo el estado en memoria.
+  // Así el bloqueo secuencial vuelve a empezar en la carrera 1.
+  return jobs.reduce(function(p,j){return p.then(j);},Promise.resolve()).then(function(){
+    location.reload();
+  });
+}
+
+/* ---------- events ---------- */
+function confirmed(key){
+  if(S.confirm===key){S.confirm='';clearTimeout(confirmTimer);return true;}
+  S.confirm=key;render();clearTimeout(confirmTimer);
+  confirmTimer=setTimeout(function(){S.confirm='';render();},4000);
+  return false;
+}
+function go(tab){S.tab=tab;S.riderId=null;S.raceId=null;setHash(tab);render();toTop();}
+document.addEventListener('click',function(e){
+  var el=e.target.closest('[data-act]');
+  if(!el){if(S.confirm){S.confirm='';render();}return;}
+  var act=el.dataset.act,id=el.dataset.id;
+  var editActions=['new-rider','edit-rider','new-team','edit-team','edit-results','load-example','reset-all'];
+  if(['new-race','edit-race','del-race'].indexOf(act)!==-1)return;
+  if(editActions.indexOf(act)!==-1&&!S.canWrite){renderLogin('Inicia sesión como administrador para modificar el campeonato.');return;}
+  if(act==='ov-backdrop'){if(e.target===el)closeSheet();return;}
+  if(act==='ov-close'){closeSheet();return;}
+  if(act.indexOf('del-')===0||act==='reset-all'){if(!S.canWrite)return;if(!confirmed(act+':'+(id||'')))return;}
+  else if(S.confirm){S.confirm='';}
+  switch(act){
+    case 'login':renderLogin();break;
+    case 'logout':logout();break;
+    case 'tab':go(el.dataset.tab);break;
+    case 'rider':S.tab='pilotos';S.riderId=id;S.raceId=null;setHash('pilotos');render();toTop();break;
+    case 'race':S.tab='carreras';S.raceId=id;S.riderId=null;setHash('carreras');render();toTop();break;
+    case 'back-riders':S.riderId=null;render();break;
+    case 'back-races':S.raceId=null;render();break;
+    case 'chart-mode':S.chartMode=el.dataset.mode;render();break;
+    case 'new-rider':openRiderForm();break;
+    case 'edit-rider':openRiderForm(id);break;
+    case 'new-team':openTeamForm();break;
+    case 'edit-team':openTeamForm(id);break;
+    case 'new-race':openRaceForm();break;
+    case 'edit-race':openRaceForm(id);break;
+    case 'edit-results':{var rr=S.races.find(function(x){return x.id===id;});if(rr&&canEnterResults(rr))openResultsForm(id);else toast('Completa primero la carrera anterior.');break;}
+    case 'del-rider':S.riderId=null;render();attempt(function(){return remove('riders/'+id);},'Piloto eliminado');break;
+    case 'del-team':attempt(function(){return remove('teams/'+id);},'Constructor eliminado');break;
+    case 'del-race':S.raceId=null;render();attempt(function(){return remove('races/'+id);},'Carrera eliminada');break;
+    case 'load-example':attempt(loadExample,'Ejemplo cargado');break;
+    case 'reset-all':attempt(resetAll,'Campeonato borrado');break;
+  }
+});
+document.addEventListener('change',function(e){if(e.target.closest&&e.target.closest('#f-results'))updateResultsForm();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$ov.hidden)closeSheet();});
+document.addEventListener('submit',function(e){
+  e.preventDefault();
+  var f=e.target,fid=f.id,id=f.dataset.id||'';
+  if(fid==='f-login'){
+    var email=f.elements.email.value.trim(),pw=f.elements.password.value;
+    if(!db||!db.client){renderLogin('Supabase todavía no está disponible. Recarga la página.');return;}
+    db.client.auth.signInWithPassword({email:email,password:pw}).then(function(res){
+      if(res.error){renderLogin('Email o contraseña incorrectos.');return;}
+      window.__motogpUser=res.data.user||null;
+      S.canWrite=!!window.__motogpUser;
+      closeSheet();
+      location.reload();
+    }).catch(function(e){
+      console.error(e);renderLogin('No se pudo iniciar sesión. Inténtalo de nuevo.');
+    });
+    return;
+  }
+  if(fid==='f-rider'){
+    var name=f.elements['rf-name'].value.trim(); if(!name)return;
+    var num=parseInt(f.elements['rf-num'].value,10), rid=id||newId('riders'), old=id?riderById(id):null;
+    closeSheet();
+    attempt(function(){return put('riders/'+rid,{name:name,number:isFinite(num)?num:'',teamId:f.elements['rf-team'].value,country:f.elements['rf-country'].value.trim(),bio:f.elements['rf-bio'].value.trim()});},id?'Piloto actualizado':'Piloto añadido');
+    if(!id){S.tab='pilotos';}
+  }else if(fid==='f-team'){
+    var tn=f.elements['tf-name'].value.trim(); if(!tn)return;
+    var tid=id||newId('teams'); closeSheet();
+    attempt(function(){return put('teams/'+tid,{name:tn,color:f.elements['tf-color'].value});},id?'Constructor actualizado':'Constructor añadido');
+  }else if(fid==='f-race'){
+    var rn=f.elements['gf-name'].value.trim(); if(!rn)return;
+    var old2=id?S.races.find(function(x){return x.id===id;}):null, gid=id||newId('races');
+    var data={name:rn,circuit:f.elements['gf-circuit'].value.trim(),date:f.elements['gf-date'].value,round:parseInt(f.elements['gf-round'].value,10)||1,
+      gp:old2&&old2.gp?old2.gp:{},pole:old2&&old2.pole?old2.pole:'',fl:old2&&old2.fl?old2.fl:''};
+    closeSheet();
+    attempt(function(){return put('races/'+gid,data);},id?'Carrera actualizada':'Carrera añadida');
+  }else if(fid==='f-results'){
+    var race=S.races.find(function(x){return x.id===id;}); if(!race)return;
+    var d=readResultsForm(f); if(d.errs.length)return;
+    var upd=Object.assign({},race); delete upd.id;
+    upd.gp=d.gp; delete upd.sp; upd.pole=d.pole; upd.fl=d.fl;
+    closeSheet();
+    attempt(function(){return put('races/'+id,upd);},'Resultados guardados');
+  }else if(fid==='f-cfg'){
+    if(!S.canWrite)return;
+    function list(s){return s.split(/[\s,;]+/).map(Number).filter(function(n){return isFinite(n)&&n>=0;});}
+    var gp=list(document.getElementById('cfg-gp').value);
+    if(!gp.length){toast('Escribe los puntos del Gran Premio, por ejemplo 25, 20, 16.');return;}
+    var nm=document.getElementById('cfg-name').value.trim()||DEFAULT_CFG.name;
+    attempt(function(){return put('settings/main',{name:nm,season:document.getElementById('cfg-season').value.trim(),gp:gp,flPoint:Number(document.getElementById('cfg-fl').value)||0,example:!!S.cfg.example});},'Ajustes guardados');
+  }
+});
+window.addEventListener('hashchange',function(){
+  var t=location.hash.slice(1);
+  if(TABS.some(function(x){return x[0]===t;})&&t!==S.tab){S.tab=t;S.riderId=null;S.raceId=null;render();}
+});
+
+/* ---------- boot ---------- */
+(function(){var t=location.hash.slice(1);if(TABS.some(function(x){return x[0]===t;}))S.tab=t;})();
+db=supabaseDB();
+S.canWrite=false;
+render();
+function startData(){
+  function got(k){S.got[k]=true;S.loaded=!!(S.got.teams&&S.got.riders&&S.got.races&&S.got.cfg);render();}
+  function fail(e){console.error(e);S.status='error';render();}
+  db.collection('teams').onSnapshot(function(s){S.teams=s.docs.map(function(d){return Object.assign({id:d.id},d.data());});got('teams');},fail);
+  db.collection('riders').onSnapshot(function(s){S.riders=s.docs.map(function(d){return Object.assign({id:d.id},d.data());});got('riders');},fail);
+  db.collection('races').onSnapshot(function(s){S.races=s.docs.map(function(d){return Object.assign({id:d.id},d.data());});got('races');},fail);
+  db.doc('settings/main').onSnapshot(function(s){S.cfg=Object.assign({},DEFAULT_CFG,s.exists?s.data():{});got('cfg');},fail);
+}
+db.client.auth.getSession().then(function(res){
+  window.__motogpUser=res.data&&res.data.session?res.data.session.user:null;
+  S.canWrite=!!window.__motogpUser;
+  render();
+  if(S.canWrite) installFixedSchedule().catch(function(e){console.error(e);});
+  startData();
+  db.client.auth.onAuthStateChange(function(event,session){
+    window.__motogpUser=session?session.user:null;
+    S.canWrite=!!window.__motogpUser;
+    if(event==='SIGNED_OUT'||event==='SIGNED_IN'||event==='TOKEN_REFRESHED')render();
+    if(event==='SIGNED_IN'&&S.canWrite) installFixedSchedule().catch(function(e){console.error(e);});
+  });
+}).catch(function(e){
+  console.error(e);
+  S.status='error';
+  render();
+});
+})();
+</script>
+
+</body></html>
